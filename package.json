@@ -1,0 +1,32 @@
+{
+  "name": "TodoApp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "firebase": "^5.2.0",
+    "react": "^16.2.0",
+    "react-native": "^0.54.0",
+    "react-native-calendars": "^1.19.4",
+    "react-native-linear-gradient": "^2.4.0",
+    "react-native-modal": "^6.4.0",
+    "react-native-navigation": "^1.1.474",
+    "react-native-radial-gradient": "^1.0.4",
+    "react-redux": "^5.0.7",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.3.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-jest": "23.2.0",
+    "babel-preset-react-native": "4.0.0",
+    "jest": "23.3.0",
+    "react-test-renderer": "16.4.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

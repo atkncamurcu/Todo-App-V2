@@ -15,15 +15,16 @@ export class _AddTodoScreen extends React.Component{
 
     
     _onAddPress = () => {
-        this.props.AddTodo({ text: this.props.todo.new_todo, label: '', date: this.props.todo.new_date});
+        this.props.AddTodo(this.props.todoID, { text: this.props.todo.new_todo, label: '', date: this.props.todo.new_date});
         this.props.navigator.push({
-            screen: 'App.Application.HomeScreen'
+            screen: 'App.Application.TodoScreen',
+           passProps: { todoID: this.props.todoID }
         });
     }
 
     _onBackPress = () => {
         this.props.navigator.push({
-            screen:'App.Application.HomeScreen'
+            screen:'App.Application.TodoScreen'
         })
     }
 

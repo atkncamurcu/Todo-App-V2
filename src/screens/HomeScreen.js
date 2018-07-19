@@ -1,199 +1,138 @@
 import React from "react";
-
-import uuid from "uuid";
-
-import { Modal, Text, View, ScrollView ,TouchableOpacity,Image} from "react-native";
-import {DeleteTodo, AddTodo, EditTodo, OnAddTodoChange,OnChangeNewTodoDate} from "../actions";
+import uuid from 'uuid';
+import { View,TouchableOpacity,Image,ScrollView,Text } from "react-native";
+import { LoginButton,DoTextInput} from "../components";
+import { OnTodoListChange, AddTodoList, DeleteTodoList, UpdateTodoList } from "../actions";
 import { connect } from "react-redux";
 import LinearGradient from "react-native-linear-gradient";
-import { DoTextInput,LoginButton} from "../components";
 import {IMAGES} from "../assets";
-import {Calendar} from "react-native-calendars";
-import firebase from 'firebase';
-import RadialGradient from 'react-native-radial-gradient'
-
-import { styledDate } from "../helpers";
-
-export class ModalClass extends React.Component{
-
-    state = {
-        todo: {},
-        visible: false
-    }
-
-    showModal(todo){
-        this.setState({ todo: todo, visible: true });
-    }
-
-    closeModal(){
-        this.setState({ todo: {} ,visible: false });
-    }
-
-    _onTextChange = (e) => {
-        this.setState({ todo: { ...this.state.todo, text: e } });
-    }
-
-    onEditPress = () => {
-        this.props.onEditPress({ id: this.state.todo.id, label: '', text: this.state.todo.text, date: this.state.todo.date });
-        this.closeModal();
-    }
-
-    _onDayPress = (day) => {
-        this.setState({ todo: {...this.state.todo, date: day.timestamp}})
-    }
-
-    render(){
-        
-        const markedDays = {};
-        markedDays[styledDate(this.state.todo.date)] = {
-            selected: true,
-            selectedColor: 'red'
-        }
-        
-        return(
-            <Modal visible={this.state.visible} transparent>
-            <View style = {{backgroundColor: this.props.transparent ? 'transparent' : 'rgba(0, 0, 0, 0.6)',flex:1,alignItems:'center',height:'100%'}}>
-                <View style={{ alignItems: 'center', justifyContent:'center', flex:1, paddingHorizontal:15,width:'100%'}}>
-                    <TouchableOpacity style={{position:'absolute',marginTop:20,backgroundColor:'transparent',width:30,height:30,alignItems:'center',justifyContent:'center',right:10,top:10}} onPress={this.closeModal.bind(this)}>
-                    <Image style={{ height: 40, resizeMode: 'contain', width: 40, marginTop:50}} source={IMAGES.close} />
-                    </TouchableOpacity>
-                        <Calendar
-                            onDayPress={(day) => {this._onDayPress(day) }}       
-                            markedDates={markedDays}
-                        />
-
-
-                    <DoTextInput 
-                        placeholder='Enter Todo' 
-                        autoCapitalize='none' 
-                        value={this.state.todo.text}
-                        onChangeText={e => this._onTextChange(e)}
-                    />
-                   <TouchableOpacity style={{width:'100%',height:70,borderRadius:90,marginTop:50,justifyContent:'center'}} onPress={this.onEditPress} >
-                   <LinearGradient colors={['#89fffd', '#00e7ff', '#00e7ff','#9491ff','#ef32d9']}style={{alignItems: 'center', flex: 1, justifyContent: 'center', width: '100%' }}>        
-                            <Text style = {{textAlign:'center',fontSize:25,color:'black'}}> Edit Todo </Text>
-                    </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-                </View>
-            </Modal>
-        );
-    }
-}
+import Modal from "react-native-modal";
 
 export class _HomeScreen extends React.Component{
 
     state = {
-        isModalVisible: false,
-        isDeleteModel: false
+        isListModel: false
     };
 
-    _toggleModal = () => this.setState({ isModalVisible: !this.state.isModalVisible });
-
-    
-    _goAdd = () => {
-        this.props.navigator.push({
-            screen: 'App.Application.AddTodoScreen'
-        });
+    openListModal = () => {
+        if(!this.state.isListModel){
+            this.setState({ isListModel: true });
+        }
+    }
+    closeListModal = () => {
+        if(this.state.isListModel){
+            this.setState({ isListModel: false });
+        }
     }
 
-    _signOut = () => {
+    //_toggleListModal = () => this.setState({ isListModel: !this.state.isListModel });
+
+    _onTodoPress = () => {
+        this.props.AddTodoList({ title: this.props.todolist.list_title});
+    }
+
+    _goHome= () => {
+        this.props.navigator.push({
+            screen: 'App.Application.TodoScreen',
+        });
         
-        firebase.auth().signOut;
-        this.props.navigator.push({
-            screen: 'App.Auth.LoginScreen'
-        });
-
     }
 
-    _renderTodoItems = items => {
-        const renderedItems = [];
 
-        items.map(item => {
+    _renderTodoListItems = lists => {
+        const renderedLists = [];
+        let i = 0;
+        lists.forEach(list => {
 
-            const _onDeletePress = () => {
-                this.props.DeleteTodo(item.id);
-                this._toggleModal;
+            const itemID = list.id
+            console.log(itemID);
+            const _onDeleteList = () => {
+                console.log(itemID);
+                this.props.DeleteTodoList(itemID);this.closeListModal();
+            }
+            const _onUpdateList = () => {
+                this.props.UpdateTodoList({id: list.id, title: list.title});
             }
 
-            const _onEditPress = (item) => {
-                this._editModal.showModal(item);
-            };
+            const  _onChangeCurrentList= () => {
+                this.props.navigator.push({
+                    screen: 'App.Application.TodoScreen',
+                    passProps: { todoID: itemID }
+                });
+               
+            } 
 
-            renderedItems.push(
-                <View key={uuid()} style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', width: '100%' }} >
-                        
-                        <View style={{flex:1,width:'100%'}}>
-                        <Text style={{ color: 'rgb(255, 255, 255)' , flex: 1, marginTop:20}}>
-                            { item.text }
+
+
+            renderedLists.push(
+                <View key={uuid()} style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 15, width: '100%' }} >
+                    <View style={{flex:1,width:'100%'}}>
+                        <Text style={{ color: 'rgb(255, 255, 255)' , flex: 1, paddingTop: 10 }}>
+                            { list.title }
                         </Text>
-                        <View style={{ backgroundColor: 'white',height:1, width: '100%',flex:1 }}/>
-                        </View>
-                        <Text style={{ color: 'rgb(255, 255, 255)' , flex: 1, marginTop:20,marginLeft:20}}>
-                            { styledDate(item.date) }
-                        </Text>
-                        
-                        <TouchableOpacity style={{position:'relative',marginTop:20,backgroundColor:'red',width:30,height:30,alignItems:'center',justifyContent:'center'}} onPress={this._toggleModal} > 
-                            <Text style={{}}>D</Text>
-                        </TouchableOpacity>
-                        <Modal visible={this.state.isModalVisible} transparent> 
-                            <View style = {{backgroundColor: this.props.transparent ? 'transparent' : 'rgba(0, 0, 0, 0.6)',flex:1,justifyContent:'center',alignItems:'center'}}>
-                            <TouchableOpacity style={{position:'absolute',marginTop:20,backgroundColor:'white',width:30,height:30,alignItems:'center',justifyContent:'center',right:10,top:10}} onPress={this._toggleModal}>
+                    </View>
+                    <TouchableOpacity style={{position:'relative', backgroundColor:'red', width:30, height:30, alignItems:'center',justifyContent:'center'}} onPress={_onDeleteList} > 
+                        <Text>D</Text>
+                    </TouchableOpacity>
+                    <Modal visible={this.state.isListModel} transparent> 
+                        <View style = {{backgroundColor: this.props.transparent ? 'transparent' : 'rgba(0, 0, 0, 0.6)',flex:1,justifyContent:'center',alignItems:'center'}}>
+                            <TouchableOpacity style={{position:'absolute',marginTop:20,backgroundColor:'transparent',width:30,height:30,alignItems:'center',justifyContent:'center',right:10,top:10}} onPress={this.closeListModal}>
                                 <Image style={{ height: 30, resizeMode: 'contain', width: 30 }} source={IMAGES.close} />
                             </TouchableOpacity>
-
-                                <Text style = {{flex:1,top:200,width:'100%',color:'white',textAlign:'center',fontSize:25}}>Are you sure about that ? </Text>
-                                <TouchableOpacity style={{position:'absolute',flex:1}} onPress={_onDeletePress}>
-                                    <Text style = {{fontSize:45,backgroundColor:'red'}}> Delete </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Modal>
-                        <TouchableOpacity style={{position:'relative',marginTop:20,backgroundColor:'blue',width:30,height:30,alignItems:'center',justifyContent:'center'}} onPress={() => _onEditPress(item)}> 
-                            <Text style={{}}>E</Text>
-                        </TouchableOpacity>
-
+                            <Text style = {{flex:1,top:200,width:'100%',color:'white',textAlign:'center',fontSize:25}}>Are you sure about that ? </Text>
+                            <TouchableOpacity style={{position:'absolute',flex:1}} onPress={_onDeleteList}>
+                                <Text style = {{fontSize:45,backgroundColor:'red'}}> Delete </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Modal>
+                    <TouchableOpacity style={{position:'relative', backgroundColor:'blue', width:30, height:30, alignItems:'center', justifyContent:'center'}} onPress={_onUpdateList}> 
+                        <Text style={{}}>E</Text>
+                    </TouchableOpacity> 
+                    
+                    <TouchableOpacity style={{position:'relative', backgroundColor:'yellow', width:30, height:30, alignItems:'center', justifyContent:'center'}} onPress={_onChangeCurrentList}> 
+                        <Text style={{}}>C</Text>
+                    </TouchableOpacity> 
                 </View>
-
             );
+            if(i != lists.length - 1){
+                renderedLists.push(<View key={uuid()} style={{ backgroundColor: 'white', height:1, marginVertical: 8, marginHorizontal: 15, flex:1 }}/>)
+            }
+            i++;
         });
-
-        return renderedItems;
+        
+        return renderedLists;
     }
+
+
 
     render(){
         return(
             <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', width: '100%' }}>
-                <ModalClass 
-                    onTodoChange={this.props.OnAddTodoChange}
-                    onEditPress={this.props.EditTodo}
-                    OnChangeNewTodoDate = {this.props.OnChangeNewTodoDate}
-                    ref={c => this._editModal = c}
-                />
-            <LinearGradient colors={['#ef32d9', '#9491ff', '#00c4ff','#00e7ff','#89fffd']}  style={{alignItems: 'center', flex: 1, justifyContent: 'center', width: '100%' }}> 
-                <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, paddingHorizontal: 15, width: '100%' }}>
-                    <ScrollView style={{ flex: 1, width: '100%',marginTop:75 }}> 
-                        { this._renderTodoItems(this.props.todo.todoList) }
+                <LinearGradient  colors={['#ef32d9', '#9491ff', '#00c4ff','#00e7ff','#89fffd']}  style={{alignItems: 'center', flex: 1, justifyContent: 'center', width: '100%' }}> 
+                <ScrollView style={{ flex: 1, width: '100%',marginTop:50 }}> 
+                        { this._renderTodoListItems(this.props.todolist.todoLists) }
                     </ScrollView>
-                   
-                    <TouchableOpacity style={{position:'absolute',backgroundColor:'#FE2E64',height:90,width:90,borderRadius:90,marginLeft:250,right:15,bottom:15,justifyContent:'center'}} onPress={this._goAdd}>
-                    <Text style = {{textAlign:'center',fontSize:25}}> + </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{position:'absolute',backgroundColor:'rgba(0, 0, 0, 0.3)',height:60,width:60,top:10,right:15,justifyContent:'center',flex:1,width:'100%',marginTop:15,}} onPress={this._signOut}>
-                    <Text style = {{textAlign:'center',fontSize:25}}> SignOut </Text>
-
-                    </TouchableOpacity>
-
-                </View>
-            </LinearGradient>
-        </View>
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, paddingHorizontal: 15, width: '100%' }}>
+                        <View style = {{alignItems: 'center',justifyContent:'center',flex:1,paddingHorizontal:15,width:'100%'}}>
+                        </View>
+                        <DoTextInput
+                            color='black'
+                            placeholder='Enter List Name' 
+                            autoCapitalize='none' 
+                            value={this.props.todolist.list_title}
+                            onChangeText={e => this.props.OnTodoListChange(e)}
+                        />
+                        <LoginButton label='Add List' onPress={this._onTodoPress}/>
+                    </View>
+                  
+                </LinearGradient>
+            </View>
         );
     }
 }
 
-const mapStoreToProps = ({ todo }) => {
-    return { todo: todo };
+const mapStoreToProps = ({ todolist }) => {
+    return { todolist: todolist};
 }
-export const HomeScreen = connect(mapStoreToProps, {EditTodo, DeleteTodo})(_HomeScreen);
+export const HomeScreen = connect(mapStoreToProps, { OnTodoListChange,AddTodoList,DeleteTodoList,UpdateTodoList})(_HomeScreen);
 

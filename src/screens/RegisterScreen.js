@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Image, TouchableOpacity, Text } from "react-native";
 
-import { LoginButton } from "../components";
 import {DoTextInput} from "../components";
 import {IMAGES} from "../assets";
 

@@ -10,18 +10,23 @@ import {
 import firebase from 'firebase';
 
 
-export const AddTodo = ({ text, label, date }) => {
+export const AddTodo = ( listID, value = { text, label, date }) => {
     return(dispatch) => {
 
+        
+        const {text,label,date} = value;
         const newTodo = {}
-
         const userID = firebase.auth().currentUser.uid;
 
+    
+
+        newTodo.listID = listID;
         newTodo.text = text;
         newTodo.label = label ? label : '';
         newTodo.date = date;
-
-        firebase.database().ref('/users/' + userID + '/todos/').push(newTodo).then(res => {
+       
+        console.log(listID)
+        firebase.database().ref('/users/' + userID + '/lists/' + listID + '/todos').push(newTodo).then(res => {
 
             console.log(res);
             newTodo.id = res.path.pieces_[3];
@@ -40,6 +45,7 @@ export const AddTodo = ({ text, label, date }) => {
 export const DeleteTodo = (id) => {
     return (dispatch, getState) => {
 
+        
         const userID = firebase.auth().currentUser.uid;
         const allTodos = getState().todo.todoList;
         const filteredTodos = allTodos.filter(todo => {
@@ -97,13 +103,21 @@ export const OnAddTodoChange = (text) => {
     }
 };
 
-export const LoadInitialTodos = () => {
+export const LoadInitialTodos = (listID) => {
+
+    //newTodo.listID = listID;
+
+    console.log(listID);
+
+    
+    
+
     return async(dispatch) => {
 
         dispatch({ type: TODOS_LIST_LOADING });
 
         const uid = firebase.auth().currentUser.uid;
-        firebase.database().ref('/users/' + uid + '/todos').once('value', todos => {
+        firebase.database().ref('/users/' + uid + '/lists/'+ listID + '/todos').once('value', todos => {
 
             const loadedTodos = [];
 

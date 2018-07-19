@@ -4,7 +4,7 @@ import { Navigation } from "react-native-navigation";
 
 import RegisterScreens from "./src/screens";
 import { store } from "./src/store";
-import { LoadInitialTodos } from "./src/actions";
+import { LoadInitialTodos,LoadInitialTodoLists } from "./src/actions";
 
 const StartApp = () => {
 
@@ -31,7 +31,8 @@ const StartApp = () => {
           navBarHidden: true
         }
       });
-      store.dispatch(LoadInitialTodos());
+      store.dispatch(LoadInitialTodoLists());
+      //store.dispatch(LoadInitialTodos());
     }else{
       Navigation.startSingleScreenApp({
         screen:{

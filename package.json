@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "firebase": "^5.2.0",
+    "immutability-helper": "^2.7.1",
     "react": "^16.2.0",
     "react-native": "^0.54.0",
     "react-native-calendars": "^1.19.4",

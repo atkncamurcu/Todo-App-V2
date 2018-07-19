@@ -1,4 +1,8 @@
-import { LOGIN_PASSWORD_CHANGE, LOGIN_EMAIL_CHANGE, LOGIN_SUCCESS } from "../type";
+import { 
+    LOGIN_PASSWORD_CHANGE, 
+    LOGIN_EMAIL_CHANGE, 
+    LOGIN_SUCCESS } 
+    from "../type";
 
 
 const INITIAL_STATE = {
@@ -9,10 +13,13 @@ const INITIAL_STATE = {
 
 export default(state = INITIAL_STATE,action) => {
     switch(action.type){
+
         case LOGIN_SUCCESS:
             return INITIAL_STATE;
+
         case LOGIN_PASSWORD_CHANGE:
             return { ...state, login_pass: action.payload };    
+
         case LOGIN_EMAIL_CHANGE:
             return { ...state, login_email: action.payload };
 
